@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Custom Dog Art Generator</title>
+</head>
+<body>
+  <h1>Generate Your Custom Dog Art</h1>
+  <form id="dogPromptForm">
+    <label>Describe Your Dog:</label><br/>
+    <textarea name="description" rows="4" cols="50" placeholder="e.g. Fluffy golden retriever in a bubble bath"></textarea><br/><br/>
+    <button type="submit">Generate Art</button>
+  </form>
+  <div id="output"></div>
+  <div id="generatedImage"></div>
+
+  <script>
+    document.getElementById("dogPromptForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+
+      const response = await fetch("/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+      if (result.imageUrl) {
+        document.getElementById("generatedImage").innerHTML = `
+          <img src="\${result.imageUrl}" style="max-width:100%;"/><br/>
+          <a href="\${result.imageUrl}" download="MyCustomDogArt.png">Download Image</a>
+        `;
+      } else {
+        document.getElementById("output").innerText = "Error: " + result.error;
+      }
+    });
+  </script>
+</body>
+</html>
